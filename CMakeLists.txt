@@ -10,3 +10,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add the executable file
 add_executable(${PROJECT_NAME} src/main.cpp)
+
+# Disable unnecessary GLFW components
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLE OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+
+# Include GLFW
+add_subdirectory(external/glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
