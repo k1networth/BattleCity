@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "renderer/shaderProgram.hpp"
+
 GLfloat point[] = {
 	 0.0f,  0.5f, 0.0f,
 	 0.5f, -0.5f, 0.0f,
@@ -47,7 +49,7 @@ int main()
 	/* Initialize the library */
 	if (!glfwInit())
 	{
-		std::cerr << "glfwInit() failed!\n";
+		std::cerr << "glfwInit() failed!" << std::endl;
 
 		return -1;
 	}
@@ -61,7 +63,7 @@ int main()
 
 	if (!ptrWindow)
 	{
-		std::cerr << "glfwCreateWindow() failed!\n";
+		std::cerr << "glfwCreateWindow() failed!" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
@@ -74,31 +76,24 @@ int main()
 
 	if (!gladLoadGL())
 	{
-		std::cerr << "Can't load GLAD!\n";
+		std::cerr << "Can't load GLAD!" << std::endl;
 		
 		return -1;
 	}
 
-	std::cout << "Renderer: " << glGetString(GL_RENDERER) << '\n';
-	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << '\n';
+	std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+	std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
 	glClearColor(1, 1, 0, 1);
 
-	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vs, 1, &vertexShader, nullptr);
-	glCompileShader(vs);
-
-	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fs, 1, &fragmentShader, nullptr);
-	glCompileShader(fs);
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vs);
-	glAttachShader(shaderProgram, fs);
-	glLinkProgram(shaderProgram);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
+	std::string vertex_shader(vertexShader);
+	std::string fragment_shader(fragmentShader);
+	Renderer::ShaderProgram shaderProgram(vertex_shader, fragment_shader);
+	if (!shaderProgram.isCompiled())
+	{
+		std::cerr << "Can't create shader program!" << std::endl;
+		return -1;
+	}
 
 	GLuint pointsVBO = 0;
 	glGenBuffers(1, &pointsVBO);
@@ -128,7 +123,7 @@ int main()
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glUseProgram(shaderProgram);
+		shaderProgram.use();
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
